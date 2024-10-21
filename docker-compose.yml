@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "3000:80"
+    environment:
+      - REACT_APP_API_URL=http://backend:8080
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ./backend
+    depends_on:
+      - db
+      - flyway
+    environment:
+      DB_DSN: "host=db port=5432 user=postgres password=b8bw£6E*0_98 dbname=postgres sslmode=disable"
+      BOT_KEY: "7010563543:AAH3Z6KVMhoX8kcD8fHznhNPNtjq5cO3j5Q"
+      MANAGER_CHAT_ID: "-1002327529111"
+    ports:
+      - "8080:8080"
+      
+
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: b8bw£6E*0_98
+      POSTGRES_DB: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  flyway:
+    image: flyway/flyway
+    command: -url=jdbc:postgresql://db:5432/postgres -user=postgres -password=b8bw£6E*0_98 migrate
+    volumes:
+      - ./db/migrations:/flyway/sql
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
